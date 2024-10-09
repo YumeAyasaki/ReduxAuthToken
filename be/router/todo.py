@@ -32,7 +32,7 @@ async def add_one(request_data: Request, payload=Depends(has_access)):
     return Response('Successfully add task.', status_code=201)
 
 @router.post('/{id}/')
-async def update_status(id: str):
+async def update_status(id: str, payload=Depends(has_access)):
     try:
         todo_crud.update_status(id)
         
@@ -42,7 +42,7 @@ async def update_status(id: str):
     return Response('Successfully edit task.', status_code=201)
 
 @router.delete('/delete/{id}/')
-async def delete(id: str):
+async def delete(id: str, payload=Depends(has_access)):
     try:
         todo_crud.delete_todo(id)
         

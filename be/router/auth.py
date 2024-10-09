@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, HTTPException
 from datetime import datetime, timedelta
 from fastapi import Depends
 
@@ -23,8 +23,10 @@ async def refresh(request_data: Request):
     data = await request_data.json()
     data = decrypt(data['refresh_token'])
     expire_at = datetime.fromisoformat(data['expire_at'])
+    print(expire_at)
+    print(datetime.now())
     if datetime.now() > expire_at:
-        return {'message': 'Expired refresh token. Log out.'}
+        raise HTTPException(status_code=401)
     user = None
     # New access token
     try:
@@ -37,7 +39,7 @@ async def refresh(request_data: Request):
     user.pop('created_at', None)
     user.pop('updated_at', None)
     access_token = user.copy()
-    access_token['expire_at'] = datetime.now() + timedelta(seconds=30)
+    access_token['expire_at'] = datetime.now() + timedelta(seconds=5)
     access_token['expire_at'] = access_token['expire_at'].isoformat()
     access_token = encrypt(access_token)
     

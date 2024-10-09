@@ -28,11 +28,11 @@ async def signin(request_data: UserSignIn):
     user.pop('updated_at', None)
     
     access_token = user.copy()
-    access_token['expire_at'] = datetime.now() + timedelta(seconds=30)
+    access_token['expire_at'] = datetime.now() + timedelta(seconds=5)
     access_token['expire_at'] = access_token['expire_at'].isoformat()
     
     refresh_token = user.copy()
-    refresh_token['expire_at'] = datetime.now() + timedelta(days=30)
+    refresh_token['expire_at'] = datetime.now() + timedelta(seconds=10)
     refresh_token['expire_at'] = refresh_token['expire_at'].isoformat()
 
     access_token = encrypt(access_token)

@@ -55,7 +55,6 @@ export function TodoState() {
   const toggleTodo = async (id: string) => {
     try {
       const res = await TodoApi.checkItem(id);
-      console.log(res);
       getTodo();
     } catch (e) {
       console.log(e);
@@ -66,7 +65,6 @@ export function TodoState() {
   const removeTodo = async (id: string) => {
     try {
       const res = await TodoApi.removeItem(id);
-      console.log(res);
       getTodo();
     } catch (e) {
       console.log(e);
@@ -77,7 +75,6 @@ export function TodoState() {
   const handleCheckButton = async () => {
     try {
       const res = await AuthApi.secret();
-      console.log(res);
     } catch (e) {
       console.log(e);
     }

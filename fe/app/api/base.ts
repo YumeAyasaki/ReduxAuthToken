@@ -1,3 +1,5 @@
+'use client';
+
 import axios, { AxiosError } from "axios";
 
 const configuredAxios = axios.create({
@@ -5,8 +7,8 @@ const configuredAxios = axios.create({
 });
 
 configuredAxios.interceptors.request.use(
-  async (config: any) => {
-    const token = await localStorage.getItem('accessToken');
+  (config: any) => {
+    const token = localStorage.getItem("accessToken");
     config.headers = {
       Authorization: `Bearer ${token}`,
       Accept: "application/json",
@@ -15,6 +17,34 @@ configuredAxios.interceptors.request.use(
     return config;
   },
   (error: AxiosError) => Promise.reject(error)
+);
+
+configuredAxios.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const refreshToken = localStorage.getItem("refreshToken");
+        const response = await axios.post(`${process.env.NEXT_PUBLIC_BE}auth/refresh/`, {
+          refresh_token: refreshToken || "",
+        });
+        const { access_token } = response.data;
+        localStorage.setItem("accessToken", access_token);
+        configuredAxios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${access_token}`;
+        return configuredAxios(originalRequest);
+      } catch (refreshError) {
+        console.error("Token refresh failed:", refreshError);
+        localStorage.clear();
+        window.location.reload();
+        return Promise.reject(refreshError);
+      }
+    }
+    return Promise.reject(error); // For all other errors, return the error as is.
+  }
 );
 
 export async function get<T>(url: string): Promise<T> {

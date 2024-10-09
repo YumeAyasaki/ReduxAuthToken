@@ -13,12 +13,10 @@ export default function ProtectedPage() {
     try {
       const res = await AuthApi.secret();
 
-      console.log(res);
       if (res[0] = "Expired access token. Request refresh") {
         const req = {refresh_token: auth.refresh_token}
         
         const res = await AuthApi.refresh(req);
-        console.log(res);
       }
     }
     catch (e) {
@@ -27,7 +25,6 @@ export default function ProtectedPage() {
   }
 
   React.useEffect(() => {
-    console.log('Auth: ', auth);
     temp()
   })
   return (
