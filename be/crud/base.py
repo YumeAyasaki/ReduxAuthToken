@@ -13,9 +13,6 @@ class CRUD(Generic[Model, Schema]):
         self.model_cls = model_cls
         self.dto_cls = dto_cls
         
-    # def to_schema(self, model: Model):
-    #     return self.dto_cls.model_validate(model)
-        
     def create(self, data: BaseSchema):
         model = self.model_cls.from_dict(data)
         print(model)

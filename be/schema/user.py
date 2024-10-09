@@ -13,3 +13,6 @@ class UserSignUp(BaseModel):
 class UserSignIn(BaseModel):
     email: str = EmailStr
     password: str = Field(..., min_length=8, max_length=100)
+
+class RefreshSchema(BaseModel):
+    refresh_token: str

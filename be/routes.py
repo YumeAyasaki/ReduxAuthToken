@@ -1,5 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi import APIRouter, Depends, HTTPException, Response, Request
 from sqlalchemy.exc import DataError, SQLAlchemyError
+from datetime import datetime, timedelta
+from fastapi import HTTPException, Depends
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from schema.user import UserSignIn, UserSignUp
 from crud.user import UserCRUD
@@ -37,10 +40,17 @@ async def signin(request_data: UserSignIn):
     user = user.to_dict()
     user.pop('created_at', None)
     user.pop('updated_at', None)
-    print(user)
-        
-    access_token = encrypt(user)
-    refresh_token = encrypt(user)
+    
+    access_token = user.copy()
+    access_token['expire_at'] = datetime.now() + timedelta(seconds=30)
+    access_token['expire_at'] = access_token['expire_at'].isoformat()
+    
+    refresh_token = user.copy()
+    refresh_token['expire_at'] = datetime.now() + timedelta(days=30)
+    refresh_token['expire_at'] = refresh_token['expire_at'].isoformat()
+
+    access_token = encrypt(access_token)
+    refresh_token = encrypt(refresh_token)
     res = {
         'message': 'Successfully log in.',
         'access_token': access_token,
@@ -58,3 +68,55 @@ async def signup(request_data: UserSignUp):
         print(err)
         return Response('Something wrong here.', status_code=500)
     return Response('Successfully create user.', status_code=201)
+
+# Secret thing
+security = HTTPBearer()
+
+async def has_access(credentials: HTTPAuthorizationCredentials= Depends(security)):
+    """
+        Function that is used to validate the token in the case that it requires it
+    """
+    token = credentials.credentials
+
+    try:
+        payload = decrypt(token)
+        return payload
+    except:  # catches any exception
+        raise HTTPException(status_code=401)
+
+@router.get('/secret/')
+async def check(payload=Depends(has_access)):
+    # print(request_data)
+    expire_at = datetime.fromisoformat(payload['expire_at'])
+    if datetime.now() > expire_at:
+        return {'Expired access token. Request refresh'}
+    
+    return {'Something'}
+
+@router.post('/refresh/')
+async def refresh(request_data: Request):
+    data = await request_data.json()
+    print(data)
+    data = decrypt(data['refresh_token'])
+    print(data)
+    expire_at = datetime.fromisoformat(data['expire_at'])
+    if datetime.now() > expire_at:
+        return {'message': 'Expired refresh token. Log out.'}
+    user = None
+    # New access token
+    try:
+        user = user_crud.get_user_by_email(data['email'])
+        print(user)
+        
+    except:
+        return {'message': 'Something wrong.'}
+    
+    user = user.to_dict()
+    user.pop('created_at', None)
+    user.pop('updated_at', None)
+    access_token = user.copy()
+    access_token['expire_at'] = datetime.now() + timedelta(seconds=30)
+    access_token['expire_at'] = access_token['expire_at'].isoformat()
+    access_token = encrypt(access_token)
+    
+    return {'access_token': access_token}

@@ -9,7 +9,7 @@ export interface InSignIn {
 }
 
 export interface OutSignIn {
-  username: TUser;
+  username: string;
   access_token: string;
   refresh_token: string;
 }

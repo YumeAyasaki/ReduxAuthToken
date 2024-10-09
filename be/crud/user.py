@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from models.user import UserModel
-from schema.user import UserSignUp, UserSignIn, BaseUser
+from schema.user import BaseUser
 from crud.base import CRUD
 
 class UserCRUD(CRUD[UserModel, BaseUser]):

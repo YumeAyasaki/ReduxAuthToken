@@ -6,9 +6,9 @@ const configuredAxios = axios.create({
 
 configuredAxios.interceptors.request.use(
   async (config: any) => {
-    //   const token = await getToken();
+    const token = await localStorage.getItem('accessToken');
     config.headers = {
-      // Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       Accept: "application/json",
       "Content-Type": "application/json",
     };
