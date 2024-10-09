@@ -7,16 +7,16 @@ interface refrestInterface {
 
 const AuthApi = {
   signIn: function (data: InSignIn) {
-    return post<OutSignIn>("/login/", data);
+    return post<OutSignIn>("/user/login/", data);
   },
   signUp: function (data: InSignUp) {
-    return post<OutSignUp>("/register/", data);
+    return post<OutSignUp>("/user/register/", data);
   },
   secret: function() {
-    return get("/secret/");
+    return get("/auth/secret/");
   },
   refresh: function(data: refrestInterface) {
-    return post("/refresh/", data);
+    return post("/auth/refresh/", data);
   }
 };
 

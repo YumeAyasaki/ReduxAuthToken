@@ -15,7 +15,6 @@ class CRUD(Generic[Model, Schema]):
         
     def create(self, data: BaseSchema):
         model = self.model_cls.from_dict(data)
-        print(model)
         self.session.add(model)
         self.session.commit()
         self.session.refresh(model)

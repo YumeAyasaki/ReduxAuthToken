@@ -24,7 +24,7 @@ export async function get<T>(url: string): Promise<T> {
   return response.data as T;
 }
 
-export async function post<T>(url: string, data: any): Promise<T> {
+export async function post<T>(url: string, data: any = null): Promise<T> {
   console.log(url);
 
   const response = await configuredAxios.post(url, data);
